@@ -1,0 +1,22 @@
+{
+  "name": "shopify-rate-limiter",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --test-timeout=15000",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "graphql": "^16.8.1",
+    "ioredis": "^5.4.2",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.16",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.4"
+  }
+}

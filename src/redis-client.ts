@@ -13,13 +13,13 @@ export function getRedisClient(): Redis {
       retryStrategy: times => Math.min(times * 100, 3000),
     });
 
-		redisClient.on('error', error => {
-			console.error('Redis error:', error);
-		});
+    redisClient.on('error', error => {
+      console.error('Redis error:', error);
+    });
 
-		redisClient.on('connect', () => {
-			console.debug('Connected to Redis');
-		});
+    redisClient.on('connect', () => {
+      console.debug('Connected to Redis');
+    });
   }
   return redisClient;
 }

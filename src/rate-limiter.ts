@@ -1,9 +1,10 @@
-import { Redis } from "ioredis";
-import { RateLimitResult, ThrottleStatus } from "./types";
+import { Redis } from 'ioredis';
+import { RateLimitResult, ThrottleStatus } from './types';
 
 const LUA_CHECK_SCRIPT = `
 local key = KEYS[1]
 local currentTimestamp = tonumber(ARGV[1])
+local requestCost = tonumber(ARGV[2])
 
 local exists = redis.call("EXISTS", key)
 if exists == 0 then
@@ -28,14 +29,15 @@ local newAvailable = math.min(storedCurrent + restored, storedMax)
 local deficit = storedMax - newAvailable
 local restoreTimeMs = (deficit / storedRate) * 1000
 
-if newAvailable > 0 then
-    local optimisticCost = newAvailable - 10
+if newAvailable >= requestCost then
+    local remainingTokens = newAvailable - requestCost
     redis.call("HMSET", key,          
-        "currentlyAvailable", optimisticCost,
+        "currentlyAvailable", remainingTokens,
         "lastUpdated", currentTimestamp)
-    return {1, newAvailable, storedMax, 0, restoreTimeMs}
+    return {1, remainingTokens, storedMax, 0, restoreTimeMs}
 else
-    return {0, 0, storedMax, restoreTimeMs, restoreTimeMs}
+    local requiredTime = ((requestCost - newAvailable) / storedRate) * 1000
+    return {0, 0, storedMax, requiredTime, restoreTimeMs}
 end
 `;
 
@@ -62,18 +64,16 @@ export class RateLimiter {
     this.client = client;
   }
 
-  async checkRateLimit(
-    storeId: string,
-    now: number = Date.now(),
-  ): Promise<RateLimitResult> {
+  async checkRateLimit(storeId: string, cost: number = 10, now: number = Date.now()): Promise<RateLimitResult> {
     const key = `shopify:rateLimit:${storeId}`;
 
-    const result = (await this.client.eval(
-      LUA_CHECK_SCRIPT,
-      1,
-      key,
-      now.toString(),
-    )) as [number, number, number, number, number];
+    const result = (await this.client.eval(LUA_CHECK_SCRIPT, 1, key, now.toString(), cost.toString())) as [
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
 
     return {
       allowed: result[0] === 1,
@@ -84,11 +84,7 @@ export class RateLimiter {
     };
   }
 
-  async updateThrottleStatus(
-    storeId: string,
-    throttleStatus: ThrottleStatus,
-    now: number = Date.now(),
-  ): Promise<void> {
+  async updateThrottleStatus(storeId: string, throttleStatus: ThrottleStatus, now: number = Date.now()): Promise<void> {
     const key = `shopify:rateLimit:${storeId}`;
 
     await this.client.eval(

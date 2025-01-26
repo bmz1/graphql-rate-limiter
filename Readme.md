@@ -1,6 +1,6 @@
 # Shopify Rate Limiter
 
-[![npm version](https://img.shields.io/npm/v/shopify-rate-limiter)](https://www.npmjs.com/package/shopify-rate-limiter)
+[![npm version](https://img.shields.io/npm/v/@bmz_1/graphql-rate-limiter](https://www.npmjs.com/package/@bmz_1/graphql-rate-limiter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A distributed rate limiter for Shopify Admin GraphQL API with Redis backend, supporting multi-store and plan-based rate limits.
@@ -23,7 +23,7 @@ A distributed rate limiter for Shopify Admin GraphQL API with Redis backend, sup
 ## 📦 Installation
 
 ```bash
-npm install shopify-rate-limiter ioredis
+npm install @bmz_1/graphql-rate-limiter ioredis
 ```
 
 ---
@@ -32,7 +32,7 @@ npm install shopify-rate-limiter ioredis
 
 ```typescript
 import Redis from 'ioredis';
-import { RateLimiter, Plan } from 'shopify-rate-limiter';
+import { RateLimiter, Plan } from '@bmz_1/graphql-rate-limiter';
 
 // Initialize
 const redis = new Redis();

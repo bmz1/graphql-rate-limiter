@@ -18,5 +18,13 @@
     "prettier": "^3.4.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.4"
+  },
+  "author": {
+    "name": "BMZ"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmz1/shopify-rate-limiter.git"
   }
 }
